@@ -14,7 +14,7 @@
 import re
 from concurrent.futures import ThreadPoolExecutor
 
-from nagare.services import plugin
+from nagare.services import plugin, proxy
 from nagare.services.aws.resources import AWS
 
 
@@ -55,38 +55,9 @@ class SQS(plugin.Plugin):
         return self.sqs.get_queue_by_name(QueueName=queue_name, **params)
 
 
-class Queue(plugin.Plugin):
-    LOAD_PRIORITY = SQS.LOAD_PRIORITY + 1
-    CONFIG_SPEC = dict(
-        plugin.Plugin.CONFIG_SPEC,
-        queue_name='string',
-        account_id='string(default=None)',
-        pool='integer(default=1)',
+class _Queue(object):
 
-        creation='boolean(default=False)',
-        fifo_queue='boolean(default=None)',
-        delay_seconds='integer(default=0)',
-        maximum_message_size='integer(default=262144)',
-        message_retention_period='integer(default=345600)',
-        receive_message_wait_time_seconds='integer(default=0)',
-        redrive_policy='string(default=None)',
-        visibility_timeout='integer(default=30)',
-        content_based_deduplication='boolean(default=None)',
-        deduplication_scope='option(messageGroup, queue, default=None)',
-        fifo_throughput_limit='option(perMessageGroupId, perQueue, default=None)',
-
-        tags={'__many__': 'string(default=None)'}
-    )
-
-    def __init__(self, name, dist, queue_name, account_id, pool, creation, tags, sqs_service, **config):
-        super(Queue, self).__init__(
-            name, dist,
-            queue_name=queue_name, account_id=account_id,
-            pool=pool,
-            creation=creation, tags=tags,
-            **config
-        )
-
+    def __init__(self, queue_name, account_id, pool, creation, tags, sqs_service, **config):
         if creation:
             queue = sqs_service.create_queue(queue_name, tags, **config)
         else:
@@ -121,4 +92,40 @@ for method in (
     'send_messages',
     'set_attributes'
 ):
-    setattr(Queue, method, lambda self, *, _method=method, **kw: getattr(self.queue, _method)(**kw))
+    setattr(_Queue, method, lambda self, *, _method=method, **kw: getattr(self.queue, _method)(**kw))
+
+
+@proxy.proxy_to(_Queue, lambda self: self.queues[self.name])
+class Queue(plugin.Plugin):
+    LOAD_PRIORITY = SQS.LOAD_PRIORITY + 1
+    CONFIG_SPEC = dict(
+        plugin.Plugin.CONFIG_SPEC,
+        queue_name='string',
+        account_id='string(default=None)',
+        pool='integer(default=1)',
+
+        creation='boolean(default=False)',
+        fifo_queue='boolean(default=None)',
+        delay_seconds='integer(default=0)',
+        maximum_message_size='integer(default=262144)',
+        message_retention_period='integer(default=345600)',
+        receive_message_wait_time_seconds='integer(default=0)',
+        redrive_policy='string(default=None)',
+        visibility_timeout='integer(default=30)',
+        content_based_deduplication='boolean(default=None)',
+        deduplication_scope='option(messageGroup, queue, default=None)',
+        fifo_throughput_limit='option(perMessageGroupId, perQueue, default=None)',
+
+        tags={'__many__': 'string(default=None)'}
+    )
+    queues = {}
+
+    def __init__(self, name, dist, queue_name, account_id, pool, creation, tags, services_service, **config):
+        super(Queue, self).__init__(
+            name, dist,
+            queue_name=queue_name, account_id=account_id,
+            pool=pool,
+            creation=creation, tags=tags,
+            **config
+        )
+        self.__class__.queues[name] = services_service(_Queue, queue_name, account_id, pool, creation, tags, **config)

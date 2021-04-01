@@ -109,7 +109,7 @@ class Queue(plugin.Plugin):
         delay_seconds='integer(default=0)',
         maximum_message_size='integer(default=262144)',
         message_retention_period='integer(default=345600)',
-        receive_message_wait_time_seconds='integer(default=0)',
+        receive_message_wait_time_seconds='integer(default=20)',
         redrive_policy='string(default=None)',
         visibility_timeout='integer(default=30)',
         content_based_deduplication='boolean(default=None)',

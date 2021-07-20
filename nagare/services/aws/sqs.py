@@ -116,7 +116,7 @@ class Queue(plugin.Plugin):
         deduplication_scope='option(messageGroup, queue, default=None)',
         fifo_throughput_limit='option(perMessageGroupId, perQueue, default=None)',
 
-        tags={'__many__': 'string(default=None)'}
+        tags={'___many___': 'string(default=None)'}
     )
     queues = {}
 

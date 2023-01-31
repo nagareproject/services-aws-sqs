@@ -1,0 +1,9 @@
+[nagare.commands]
+aws = nagare.admin.aws.sqs:Commands
+
+[nagare.commands.aws]
+receive = nagare.admin.aws.sqs:Receive
+send = nagare.admin.aws.sqs:Send
+
+[nagare.servicesc]
+sqs = nagare.services.aws.sqs:SQS

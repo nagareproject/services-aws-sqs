@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -71,14 +71,9 @@ class Send(command.Command):
     def set_arguments(self, parser):
         parser.add_argument('-g', '--group', help='MessageGroupId')
         parser.add_argument(
-            '-a', '--attr', action='append',
-            metavar=('name', 'value'), nargs=2,
-            help='message attributes'
+            '-a', '--attr', action='append', metavar=('name', 'value'), nargs=2, help='message attributes'
         )
-        parser.add_argument(
-            '-l', '--loop', action='store_true',
-            help='infinite loop sending <data> each 2 seconds'
-        )
+        parser.add_argument('-l', '--loop', action='store_true', help='infinite loop sending <data> each 2 seconds')
 
         parser.add_argument('queue', help='queue service')
         parser.add_argument('data', help='data to send')

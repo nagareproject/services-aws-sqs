@@ -1,7 +1,7 @@
 # Encoding: utf-8
 
 # --
-# Copyright (c) 2008-2023 Net-ng.
+# Copyright (c) 2008-2024 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -11,10 +11,10 @@
 
 """Provides classes to interact with the AWS SQS service."""
 
-from concurrent.futures import ThreadPoolExecutor
 import re
+from concurrent.futures import ThreadPoolExecutor
 
-from nagare.services import plugin, proxy
+from nagare.services import proxy, plugin
 from nagare.services.aws.resources import AWS
 
 

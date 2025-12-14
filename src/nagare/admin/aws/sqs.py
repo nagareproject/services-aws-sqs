@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2014-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -21,18 +21,18 @@ class Receive(command.Command):
     DESC = 'receive data from a queue'
 
     def __init__(self, name, dist, **config):
-        super(Receive, self).__init__(name, dist, **config)
+        super().__init__(name, dist, **config)
         self.nb = 0
 
     def set_arguments(self, parser):
         parser.add_argument('queue', help='queue service')
 
-        super(Receive, self).set_arguments(parser)
+        super().set_arguments(parser)
 
     def handle_request(self, msg):
-        print('- {} --------------------'.format(self.nb))
+        print(f'- {self.nb} --------------------')
 
-        print('Id: {}'.format(msg.message_id))
+        print(f'Id: {msg.message_id}')
 
         if msg.attributes:
             print('Attributes:')
@@ -48,7 +48,7 @@ class Receive(command.Command):
             for k, v in sorted(msg.message_attributes.items()):
                 print(' - {}: {}'.format(k.ljust(padding), v))
 
-        print('Body: {}'.format(msg.body))
+        print(f'Body: {msg.body}')
 
         self.nb += 1
         print('')
@@ -57,7 +57,7 @@ class Receive(command.Command):
 
     def run(self, queue, services_service):
         queue = services_service[queue]
-        print('Listening on <{}>...'.format(queue.name))
+        print(f'Listening on <{queue.name}>...')
 
         queue.start_consuming(self.handle_request, AttributeNames=['All'], MessageAttributeNames=['All'])
 
@@ -78,7 +78,7 @@ class Send(command.Command):
         parser.add_argument('queue', help='queue service')
         parser.add_argument('data', help='data to send')
 
-        super(Send, self).set_arguments(parser)
+        super().set_arguments(parser)
 
     @staticmethod
     def run(loop, queue, group, data, attr, services_service):
